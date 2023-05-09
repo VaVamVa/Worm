@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Food : MonoBehaviour
+public class FoodScript : MonoBehaviour
 {
-    public GameObject food_Prefab;
+    public GameObject foodPrefab;
 
     public Transform border_Bottom;
     public Transform border_Top;
@@ -29,6 +29,6 @@ public class Food : MonoBehaviour
         int h = (int)Random.Range(border_Bottom.position.y, border_Top.position.y);
         int v = (int)Random.Range(border_Left.position.x, border_Right.position.x);
 
-        Instantiate(food_Prefab, new Vector2(v, h), Quaternion.identity);
+        Instantiate(foodPrefab, new Vector2(v, h), Quaternion.identity);
     }
 }

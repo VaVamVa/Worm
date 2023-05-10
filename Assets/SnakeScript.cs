@@ -11,11 +11,19 @@ public class SnakeScript : MonoBehaviour
     List<Transform> tail = new List<Transform>();
     bool ate = false;
 
+    int score = 0;
+
+    private float Timer;
+    private DelayTimeMain DelayCount;
+
     // Start is called before the first frame update
     void Start()
     {
-
         InvokeRepeating("Move", 0.3f, 0.3f);
+        GameObject.FindWithTag("GM").SendMessage("Spawn");
+
+        GameObject Board = GameObject.Find("Score").GetComponent<TextMesh>();
+        Board.text = "점수: " + score;
     }
 
     // Update is called once per frame
@@ -29,6 +37,10 @@ public class SnakeScript : MonoBehaviour
             dir = Vector2.left;
         } else if (Input.GetKey("d")) {
             dir = Vector2.right;
+        }
+        if (DelayCount.DelayCount == 0) {
+            Timer = Timer + Time.deltaTime;
+            text.text = string.Format("{0:N1}", Timer);
         }
     }
 
@@ -52,9 +64,14 @@ public class SnakeScript : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D coll) {
+        Debug.Log(coll.name);
         if (coll.name.StartsWith("foodPrefab")) {
+            socre += 10;
             ate = true;
             Destroy(coll.gameObject);
+            GameObject.FindWithTag("GM").SendMessage("Spawn");
+            Board.text = "점수: " + score;
+
         } else {
             Time.timeScale = 0;
         }

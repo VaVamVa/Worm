@@ -8,13 +8,12 @@ public class SnakeScript : MonoBehaviour
 {
     Vector2 dir = Vector2.right;
     public GameObject snakePrefab;
+    public GameObject tailPrefab;
     List<Transform> tail = new List<Transform>();
     bool ate = false;
 
     int score = 0;
-
-    private float Timer;
-    private DelayTimeMain DelayCount;
+    float speed;
 
     // Start is called before the first frame update
     void Start()
@@ -22,25 +21,19 @@ public class SnakeScript : MonoBehaviour
         InvokeRepeating("Move", 0.3f, 0.3f);
         GameObject.FindWithTag("GM").SendMessage("Spawn");
 
-        GameObject Board = GameObject.Find("Score").GetComponent<TextMesh>();
-        Board.text = "점수: " + score;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey("w")) {
+        if (Input.GetKey("w") && dir != Vector2.down) {
             dir = Vector2.up;
-        } else if (Input.GetKey("s")) {
+        } else if (Input.GetKey("s") && dir != Vector2.up) {
             dir = Vector2.down;
-        } else if (Input.GetKey("a")) {
+        } else if (Input.GetKey("a") && dir != Vector2.right) {
             dir = Vector2.left;
-        } else if (Input.GetKey("d")) {
+        } else if (Input.GetKey("d") && dir != Vector2.left) {
             dir = Vector2.right;
-        }
-        if (DelayCount.DelayCount == 0) {
-            Timer = Timer + Time.deltaTime;
-            text.text = string.Format("{0:N1}", Timer);
         }
     }
 
@@ -50,8 +43,16 @@ public class SnakeScript : MonoBehaviour
 
         if (ate)
         {
-            GameObject g = (GameObject)Instantiate(snakePrefab, v, Quaternion.identity);
-            tail.Insert(0, g.transform);
+            Debug.Log(snakePrefab);
+            Debug.Log(tailPrefab);
+            if (tail.Count >= 6) {
+                GameObject g = (GameObject)Instantiate(tailPrefab, v, Quaternion.identity);
+                tail.Insert(0, g.transform);
+            }
+            else {
+                GameObject g = (GameObject)Instantiate(snakePrefab, v, Quaternion.identity);
+                tail.Insert(0, g.transform);
+            }
             ate = false;
         }
 
@@ -64,17 +65,31 @@ public class SnakeScript : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D coll) {
+        Debug.Log("isTrigger");
         Debug.Log(coll.name);
         if (coll.name.StartsWith("foodPrefab")) {
-            socre += 10;
-            ate = true;
             Destroy(coll.gameObject);
+
+            score += 10;
+            GameObject Board = GameObject.Find("Score") as GameObject;
+            Board.GetComponent<TextMesh>().text = "점수: " + score;
+
+            if (score >= 200) {
+                Time.timeScale = 0;
+            }
+
+            ate = true;
             GameObject.FindWithTag("GM").SendMessage("Spawn");
-            Board.text = "점수: " + score;
+
+            CancelInvoke("Move");
+            speed = score * 0.0015f;
+            InvokeRepeating("Move", 0.3f - speed, 0.3f - speed);
+
 
         } else {
             Time.timeScale = 0;
         }
         
     }
+
 }
